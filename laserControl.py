@@ -12,6 +12,7 @@ carbideEndPoint = "http://127.0.0.1:20010"  # SDK emulated laser
 class carbide:
     """Control over Carbide laser
     """
+
     def __init__(self):
         self.laserIdentificationNumber()
         self.serialNumber()
@@ -113,7 +114,7 @@ class carbide:
 
     def waitForLaserOperational(self):
         """Wait for laser to reach operational state, break if in failure state
-        """        
+        """
         self.actualStateName()
         while self.actualstatename.text != "\"Operational\"":
             print(self.actualstatename.text)
@@ -134,7 +135,8 @@ class carbide:
             f"{carbideEndPoint}/v1/Basic/ActualStateName")
 
     def goToStandby(self):
-        self.gotostandby = requests.post(f"{carbideEndPoint}/v1/Basic/GoToStandby", headers=self.requestHeaders)
+        self.gotostandby = requests.post(
+            f"{carbideEndPoint}/v1/Basic/GoToStandby", headers=self.requestHeaders)
         if self.gotostandby.status_code == 200:
             self.actualStateName()
             while self.actualstatename != "\"StandingBy\"":
@@ -145,10 +147,76 @@ class carbide:
             else:
                 print("Laser not in standby, please check state manually")
 
+    def actualHarmonic(self):
+        self.actualharmonic = requests.get(
+            f"{carbideEndPoint}/v1/Basic/ActualHarmonic")
+        if self.actualharmonic.status_code == 200:
+            self.wavelength = int(1030 / int(self.actualharmonic.text))
+            print(
+                f"Using harmonic {self.actualharmonic.text}, {str(self.wavelength)}nm")
+        else:
+            print("Unable to find harmonic")
+
+    def actualValues(self):
+        self.actualattenuatorpercentage = requests.get(
+            f"{carbideEndPoint}/v1/Basic/ActualAttenuatorPercentage")
+        if self.actualattenuatorpercentage.status_code == 200:
+            self.actualattenuatorpercentage_float = float(
+                self.actualattenuatorpercentage.text)
+            print(f"Power percentage: {self.actualattenuatorpercentage.text}%")
+        else:
+            pass
+        self.actualoutputenergy = requests.get(
+            f"{carbideEndPoint}/v1/Basic/ActualOutputEnergy")
+        if self.actualoutputenergy.status_code == 200:
+            print(f"Output energy: {self.actualoutputenergy.text} uJ")
+        else:
+            pass
+        self.actualoutputfrequency = requests.get(
+            f"{carbideEndPoint}/v1/Basic/ActualOutputFrequency")
+        if self.actualoutputfrequency.status_code == 200:
+            print(f"Output frequency: {self.actualoutputfrequency.text} kHz")
+        else:
+            pass
+        self.actualoutputpower = requests.get(
+            f"{carbideEndPoint}/v1/Basic/ActualOutputPower")
+        if self.actualoutputpower.status_code == 200:
+            print(f"Output power: {self.actualoutputpower.text} W")
+        else:
+            pass
+        self.actualpulseduration = requests.get(
+            f"{carbideEndPoint}/v1/Basic/ActualPulseDuration")
+        if self.actualpulseduration.status_code == 200:
+            print(f"Pulse duration: {self.actualpulseduration.text} fs")
+        else:
+            pass
+        self.actualPpdivider = requests.get(
+            f"{carbideEndPoint}/v1/Basic/ActualPpDivider")
+        if self.actualPpdivider.status_code == 200:
+            print(f"Pulse picker divider: {self.actualPpdivider.text}")
+        else:
+            pass
+
+    def isRemoteInterlockActive(self):
+        self.isremoteinterlockactive = requests.get(
+            f"{carbideEndPoint}/v1/Advanced/IsRemoteInterlockActive")
+        if self.isremoteinterlockactive.status_code == 200:
+            if self.isremoteinterlockactive.text == "true":
+                print("Remote interlock armed")
+            elif self.isremoteinterlockactive.text == "false":
+                print("Remote interlock is NOT armed")
+            else:
+                pass
+        else:
+            print("Cannot get remote interlock state")
+
+
 if __name__ == "__main__":
     run = carbide()
     run.isOutputEnabled()
+    run.actualValues()
     run.selectAndApplyPreset("2")
     run.changeOutput("enable")
     time.sleep(5)
     run.changeOutput()
+    run.actualHarmonic()
