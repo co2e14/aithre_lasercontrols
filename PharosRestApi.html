@@ -1,0 +1,2771 @@
+﻿
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <title>PHAROS Supervisor REST API documentation</title>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/default.min.css">
+      <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+      <script type="text/javascript" src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/highlight.min.js"></script><script type="text/javascript">
+         $(document).ready(function() {
+
+            var text = $('#json').text()
+            $( ".prettyprint" ).each(function( index ) {
+                var content = $( this ).text();
+                content = content.replace(/\r?\n|\r/,'');
+                try{
+                    if(content.length > 2){
+
+                        var noQuotes = content.substr(1).slice(0, -1);
+                        var contentAsJson = JSON.parse(noQuotes);  
+                        var str = JSON.stringify(contentAsJson, null, 4);
+                        $( this ).replaceWith(str);
+                    }
+                    else{
+                        $( this ).replaceWith( "<i>empty</i>");
+                    }
+                }
+                catch(error) {
+                    console.log(error);
+                    console.log(content);
+                }
+            });
+            
+
+         
+           // execute hashchange on first page load
+           $(window).trigger('hashchange');
+         
+           // remove url fragment on modal hide
+           $('.modal').on('hidden.bs.modal', function() {
+             try {
+               if (history && history.replaceState) {
+                   history.replaceState({}, '', '#');
+               }
+             } catch(e) {}
+           });
+         });
+      </script>
+      <style>
+         .hljs {
+         background: transparent;
+         }
+         .parent {
+         color: #999;
+         }
+         .list-group-item > .badge {
+         float: none;
+         margin-right: 6px;
+         }
+         .panel-title > .methods {
+         float: right;
+         }
+         i {
+             color: lightgray;
+         }
+         .badge {
+         border-radius: 0;
+         text-transform: uppercase;
+         width: 70px;
+         font-weight: normal;
+         color: #f3f3f6;
+         line-height: normal;
+         }
+         .badge_get {
+         background-color: #63a8e2;
+         }
+         .badge_post {
+         background-color: #6cbd7d;
+         }
+         .badge_put {
+         background-color: #22bac4;
+         }
+         .badge_delete {
+         background-color: #d26460;
+         }
+         .badge_patch {
+         background-color: #ccc444;
+         }
+         .list-group, .panel-group {
+         margin-bottom: 0;
+         }
+         
+         .panel-group .panel+.panel-white {
+         margin-top: 0;
+         }
+         .panel-group .panel-white {
+         border-bottom: 0px solid #F5F5F5;
+         border-radius: 0;
+         }
+         .panel-white .panel-heading {
+         background: white;
+         }
+         .tab-pane ul {
+         padding-left: 2em;
+         }
+         .tab-pane h2 {
+         font-size: 1.2em;
+         padding-bottom: 4px;
+         border-bottom: 0px solid #ddd;
+         }
+         .tab-pane h3 {
+         font-size: 1.1em;
+         }
+         .tab-content {
+         border-left: 1px solid #ddd;
+         border-right: 1px solid #ddd;
+         border-bottom: 1px solid #ddd;
+         padding: 10px;
+         }
+         #sidebar {
+         margin-top: 30px;
+         padding-right: 5px;
+         overflow: auto;
+         height: 90%;
+         }
+         .list-group-item {
+
+            border: 0px solid #ddd;
+        }
+        .panel {
+            margin-bottom: 10px;
+        }
+         .top-resource-description {
+         border-bottom: 1px solid #ddd;
+         background: #fcfcfc;
+         padding: 15px 15px 0 15px;
+         margin: -15px -15px 10px -15px;
+         }
+         .resource-description {
+         border-bottom: 1px solid #fcfcfc;
+         background: #fcfcfc;
+         padding: 15px 15px 0 15px;
+         margin: -15px -15px 10px -15px;
+         }
+         .resource-description p:last-child {
+         margin: 0;
+         }
+         .list-group .badge {
+         float: left;
+         }
+         .method_description {
+         margin-left: 85px;
+         padding-right: 40px;
+         }
+         .method_description p:last-child {
+         margin: 0;
+         }
+         .table {
+             margin-top: 10px;
+         }
+         .panel{
+             box-shadow: 0px 0px 3px #AAA;
+         }
+         .panel-title > a {
+            font-size:18px;
+        }
+        .vcenter {
+            display: inline-block;
+            vertical-align: middle;
+            float: none;
+         }
+      </style>
+   </head>
+   <body data-spy="scroll" >
+      <div class="container">
+         <div class="row">
+            <div class="col-md-12" role="main">
+                <h1>PHAROS Supervisor REST API documentation <small>version v0</small></h1>
+                <p>http://LASER_IP_ADDRESS:20022/v0</p>
+<h2>Introduction</h2>
+<p>PHAROS Supervisor greatly simplifying external control of the PHAROS laser. This REST server is not almighty, though; it will only accept commands that corresponds to PHAROS User App logic.</p>
+<p>Since this API a HTTP-based service, consuming it is easy in pretty much any platform, being it LabView, .NET languages or Python.</p>
+<h2>Usage</h2>
+<p>PHAROS Supervisor API is split into parts: <strong>/Basic</strong>, <strong>/Advanced</strong>, <strong>/StretcherCompressor</strong>, <strong>/Burst</strong>. <strong>/Basic</strong> contains casual, often used, features, while <strong>/Advanced</strong>, as the name implies, targets more complicated stuff.</p>
+<p>Any GET request can be issued using any browser, so, to read states, browser is all you need! However, to practice PUT and POST requests, we recommend using Postman. You can get it at <a href="www.getpostman.com">www.getpostman.com</a>. Although we do not use it internally, users also had great results with <a href="https://www.telerik.com/download/fiddler">Fiddler</a>.</p>
+                <h2>Basic usage</h2>
+<p>
+Defines basic functionality. Maps with UI title screen on pretty much 1:1 basis.  
+</p>
+<div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic"><span class="parent"></span>/Basic</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets all basic properties that have GET methods. All of them can be queried individually, but sometimes it is more convenient to get them all in one batch. <em>The list is not fixed</em>; it tends to grow over time as new properties are added. Also, some properties may not be relevant for a particular laser model (for example, burst-related ones for a non-burst laser).</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. GETable properties are in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                 {</br>                     "ActualAttenuatorPercentage": 50.1,</br>                     "ActualHarmonic": 1,</br>                     "ActualOutputEnergy": 50.0,</br>                     "ActualOutputFrequency": 0,</br>                     "ActualOutputPower": 2.501,</br>                     "ActualPpDivider": 1,</br>                     "ActualRaFrequency": 100.1,</br>                     "ActualRaPower": 5.000,</br>                     "ActualStateName": "StateDisconnected",</br>                     "ActualStateName2": "StateOperational",</br>                     "GeneralStatus": "Disconnected",</br>                     "IsOutputEnabled": false,</br>                     "IsOutputOpen": false,</br>                     "IsEmissionWarningActive": false,</br>                     "SelectedPresetIndex": 1,</br>                     "TargetAttenuatorPercentage": 50.0,</br>                     "TargetPpDivider": 1</br>                 }</br>                   "</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualOutputPower"><span class="parent"></span>/Basic/ActualOutputPower</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualOutputPower"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ActualOutputPower" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual laser output power in W, taking PP divider and attenuator into account. Note that this is a calculated value, and may differ slightly from real value.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual output power is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"2.001"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualRaPower"><span class="parent"></span>/Basic/ActualRaPower</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualRaPower"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ActualRaPower" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets raw RA power in W, not taking into account attenuator or PP divider.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual raw RA power is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"5.100"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualPpDivider"><span class="parent"></span>/Basic/ActualPpDivider</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualPpDivider"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ActualPpDivider" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual PP divider.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual PP divider is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"5"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_TargetPpDivider"><span class="parents">/Basic/TargetPpDivider</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_TargetPpDivider"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__Basic_TargetPpDivider"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__Basic_TargetPpDivider" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets target PP divider.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Target PP divider has been set.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"5"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Target PP divider is out of bounds. Should be no less than 1.</li>
+<li>Laser is in a state that forbids setting PP divider.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"5"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets target PP divider.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Target PP divider is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"5"</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualAttenuatorPercentage"><span class="parent"></span>/Basic/ActualAttenuatorPercentage</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualAttenuatorPercentage"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ActualAttenuatorPercentage" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual attenuator percentage. Usually it is very close to the target percentage, but may differ slightly.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual attenuator percentage is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"51.2"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_TargetAttenuatorPercentage"><span class="parents">/Basic/TargetAttenuatorPercentage</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_TargetAttenuatorPercentage"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__Basic_TargetAttenuatorPercentage"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__Basic_TargetAttenuatorPercentage" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets target attenuator percentage. Note that values at roughly 15.0 and below will be accepted, but not necessarily physically applied, as this challenges laser capabilities.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Target attenuator percentage has been set.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"51.2"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Target percentage is out of bounds. Should be between 0 and 100 (inclusive).</li>
+<li>Laser is in a state that forbids setting attenuator percentage.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"-25.2"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets target attenuator percentage. Usually it is very close to the actual percentage, but may differ slightly.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Target attenuator percentage is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"48.2"</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualOutputEnergy"><span class="parent"></span>/Basic/ActualOutputEnergy</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualOutputEnergy"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ActualOutputEnergy" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual output pulse energy in microjoules. Note that this is a calculated value, and may differ slightly from real value.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual output energy is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"55.2"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualOutputFrequency"><span class="parent"></span>/Basic/ActualOutputFrequency</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualOutputFrequency"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ActualOutputFrequency" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual output pulse frequency (repetition rate), in kHz. Takes into account PP divider.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual output pulse frequency is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"100.100"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualRaFrequency"><span class="parent"></span>/Basic/ActualRaFrequency</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualRaFrequency"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ActualRaFrequency" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets raw RA frequency (repetition rate) in kHz, not taking into account PP divider.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual raw RA frequency is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"200.100"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualStateName2"><span class="parent"></span>/Basic/ActualStateName2</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualStateName2"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ActualStateName2" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets name of the state of internal state machine. Possible states are:</p>
+<pre><code>StateDisconnected, StateOff, StateDetectingLaserState, StateStandingBy, StateHousekeeping, StateOperational, StateFailure, StateGoingToStandby, StateShuttingDown, StateOscOutput, StateInFieldUpdate, StateGoingToInFieldUpdate
+</code></pre>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual state name is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"StateDisconnected"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_GeneralStatus"><span class="parent"></span>/Basic/GeneralStatus</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_GeneralStatus"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_GeneralStatus" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets general status message of the laser. Note that this is a simple text string, and its implementation can actually change without a prior notice (for example, it may be localized).</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Status message is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""Running""</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualHarmonic"><span class="parent"></span>/Basic/ActualHarmonic</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ActualHarmonic"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ActualHarmonic" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual harmonic number.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual harmonic number is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"2"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_IsEmissionWarningActive"><span class="parent"></span>/Basic/IsEmissionWarningActive</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_IsEmissionWarningActive"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_IsEmissionWarningActive" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p></p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual state is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"Closed"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_IsOutputEnabled"><span class="parent"></span>/Basic/IsOutputEnabled</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_IsOutputEnabled"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_IsOutputEnabled" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p></p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Output state (true/false) is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"true"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_EnableOutput"><span class="parent"></span>/Basic/EnableOutput</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_EnableOutput"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_EnableOutput" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Enables output, passing actual control to the user. Output depends on shutter key position, external/internal triggering, interlocks and other factors. Use <code>IsOutputEnabled</code> endpoint to get actual output control state.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Laser output has been enabled.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids enabling the output.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_CloseOutput"><span class="parent"></span>/Basic/CloseOutput</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_CloseOutput"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_CloseOutput" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Closes (and disables) output.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Laser output has been closed and disabled.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids disabling the output (this is only possible in states when the laser is not running anyway)</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_IsOutputOpen"><span class="parent"></span>/Basic/IsOutputOpen</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_IsOutputOpen"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_IsOutputOpen" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p></p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual state is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"Closed"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_SelectedPresetIndex"><span class="parents">/Basic/SelectedPresetIndex</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_SelectedPresetIndex"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__Basic_SelectedPresetIndex"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__Basic_SelectedPresetIndex" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Selects desired preset. Presets are numbered incrementally starting at index 0. Index -1 is a special case: it selects a <em>virtual</em> preset; executing it will start laser with last known startup parameters.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Selected preset index has been set.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"1"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Incorrect preset index. It cannot be less that 0 and more than a total number of presets available.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"-2"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets selected preset. Presets are numbered incrementally starting at index 0, with -1 being a special <em>virtual</em> preset.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Selected preset index is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"1"</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ApplySelectedPreset"><span class="parent"></span>/Basic/ApplySelectedPreset</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_ApplySelectedPreset"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_ApplySelectedPreset" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Executes selected preset. If laser is in Standby state, execution may take a minute or two. Switching between similar presets usually takes a couple seconds only.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Preset execution has been initiated.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids executing a preset, probably because a preset is already being executed.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_TurnOn"><span class="parent"></span>/Basic/TurnOn</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_TurnOn"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_TurnOn" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Starts laser using currently selected preset.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Laser startup sequence has been initiated.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids turning it on.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_TurnOff"><span class="parent"></span>/Basic/TurnOff</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_TurnOff"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_TurnOff" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Turns laser off.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Laser turn off sequence has been initiated.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids turning it off.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_GoToStandby"><span class="parent"></span>/Basic/GoToStandby</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_GoToStandby"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_GoToStandby" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Sends laser into Standby state. This may take up to a minute to complete. Laser will generally not accept any commands during <code>GoingToStandby</code> state.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Laser standby sequence has been initiated.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids putting it to standby state.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_Errors"><span class="parent"></span>/Basic/Errors</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_Errors"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_Errors" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets the code list of all active errors (those with the &quot;E&quot; prefix; consult manual for detailed explanation).</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Error list is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                [</br>                    {</br>                        "Description": "RA humidity is too high.",</br>                        "Code": "E0601"</br>                    }</br>                ] </br>                "</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_Warnings"><span class="parent"></span>/Basic/Warnings</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Basic_Warnings"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Basic_Warnings" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets the code list of all currently active warnings (those with the &quot;W&quot; prefix; consult manual for detailed explanation).</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Warning list is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                [</br>                    {</br>                        "Description": "Compressor motor homing procedure failed.",</br>                        "Code": "W0900"</br>                    }</br>                ]</br>                "</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                <h2>Advanced usage</h2>
+<p>
+Defines advanced functionality, used less often.
+</p>
+<div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced"><span class="parent"></span>/Advanced</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets all advanced properties that have GET methods. All of them can be queried individually, but sometimes it is more convenient to get them all in one batch. <em>The list is not fixed</em>; it tends to grow over time as new properties are added. Also, some properties may not be relevant for a particular laser model (for example, burst-related ones for a non-burst laser).</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. GETable properties are in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>           {</br>               "ActualStateId": 2048,</br>               "IsPpEnabled": false,</br>               "ActualPulseCount": 0,</br>               "TargetPulseCount" 0,</br>               "Presets": [</br>               {</br>                   "AttenuatorPercentage": 100,</br>                   "BurstEnvelopeControlParameter": 0,</br>                   "BurstMode": 0,</br>                   "BurstParameterN": 1,</br>                   "BurstParameterP": 1,</br>                   "CavityDumpingTimeInNs": -1,</br>                   "HarmonicNumber": 0,</br>                   "Notes": "Invalid dummy preset",</br>                   "OptimalMotorPosition": -1,</br>                   "PhotodiodeCorrection1": 0.10446500033140183,</br>                   "PhotodiodeCorrection2": -1.6866900409695518e-7,</br>                   "PhotodiodeFactor": -1,</br>                   "PhotodiodeOffset": -1,</br>                   "PpDivider": -1,</br>                   "PpHighVoltageInVolts": -1,</br>                   "PulseRepetitionRateInKhz": -1,</br>                   "RaHighVoltageInVolts": -1,</br>                   "RaLddCurrentInA": -1,</br>                   "RaOnDelayInNs": -1,</br>                   "RaOutputPowerSetpointInW": -1</br>               }</br>               ]</br>           }</br>                    "</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_ActualStateId"><span class="parent"></span>/Advanced/ActualStateId</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_ActualStateId"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced_ActualStateId" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual state ID. This is a numerical representation of <code>/Basic/ActualStateName2</code> endpoint. Possible values are:</p>
+<pre><code>Unknown = 0x00
+StandingBy = 0x01
+Service = 0x02
+InFieldUpdate = 0x04
+Initializing = 0x08
+GoingToStandby = 0x10
+Failure = 0x20
+Housekeeping = 0x40
+Operational = 0x80
+ShuttingDown = 0x100
+Off = 0x200
+DetectingLaserState = 0x400
+Disconnected = 0x800
+OscOutput = 0x1000.
+</code></pre>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Actual state ID is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"2048"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_IsPpEnabled"><span class="parent"></span>/Advanced/IsPpEnabled</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_IsPpEnabled"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced_IsPpEnabled" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual state of the output pulse picker. Returns <code>true</code> or <code>false</code>.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. PP state is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""false""</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_EnablePp"><span class="parent"></span>/Advanced/EnablePp</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_EnablePp"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced_EnablePp" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Enables pulse picker.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Command executed.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids enabling pulse picker.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_DisablePp"><span class="parent"></span>/Advanced/DisablePp</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_DisablePp"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced_DisablePp" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Disables pulse picker.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Command executed.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids disabling pulse picker.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_Presets"><span class="parents">/Advanced/Presets</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_Presets"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__Advanced_Presets"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__Advanced_Presets" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Saves the list of provided presets.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Preset list is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"
+                    [
+                       {
+                           "AttenuatorPercentage": 100,
+                           "BurstEnvelopeControlParameter": 0,
+                           "BurstMode": 0,
+                           "BurstParameterN": 1,
+                           "BurstParameterP": 1,
+                           "CavityDumpingTimeInNs": 295.5,
+                           "HarmonicNumber": 0,
+                           "Notes": "Default preset",
+                           "OptimalMotorPosition": 170000,
+                           "PhotodiodeCorrection1": 0.115993,
+                           "PhotodiodeCorrection2": -0.00000126467,
+                           "PhotodiodeFactor": 0.579495,
+                           "PhotodiodeOffset": 293,
+                           "PpDivider": 1,
+                           "PpHighVoltageInVolts": 2230,
+                           "PulseRepetitionRateInKhz": 200,
+                           "RaHighVoltageInVolts": 2220,
+                           "RaLddCurrentInA": 19,
+                           "RaOnDelayInNs": 12.5,
+                           "RaOutputPowerSetpointInW": 3
+                        },
+                        {
+                            "AttenuatorPercentage": 100,
+                            "BurstEnvelopeControlParameter": 0,
+                            "BurstMode": 0,
+                            "BurstParameterN": 1,
+                            "BurstParameterP": 1,
+                            "CavityDumpingTimeInNs": 295.5,
+                            "HarmonicNumber": 0,
+                            "Notes": "User preset",
+                            "OptimalMotorPosition": 170000,
+                            "PhotodiodeCorrection1": 0.115993,
+                            "PhotodiodeCorrection2": -0.00000126467,
+                            "PhotodiodeFactor": 0.579495,
+                            "PhotodiodeOffset": 293,
+                            "PpDivider": 1,
+                            "PpHighVoltageInVolts": 2230,
+                            "PulseRepetitionRateInKhz": 200,
+                            "RaHighVoltageInVolts": 2220,
+                            "RaLddCurrentInA": 19,
+                            "RaOnDelayInNs": 12.5,
+                            "RaOutputPowerSetpointInW": 3
+                        }
+                    ]
+                    "</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets list of available laser presets.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Preset list is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                    [</br>                        {</br>                           "AttenuatorPercentage": 100,</br>                           "BurstEnvelopeControlParameter": 0,</br>                           "BurstMode": 0,</br>                           "BurstParameterN": 1,</br>                           "BurstParameterP": 1,</br>                           "CavityDumpingTimeInNs": 295.5,</br>                           "HarmonicNumber": 0,</br>                           "Notes": "Default preset",</br>                           "OptimalMotorPosition": 170000,</br>                           "PhotodiodeCorrection1": 0.115993,</br>                           "PhotodiodeCorrection2": -0.00000126467,</br>                           "PhotodiodeFactor": 0.579495,</br>                           "PhotodiodeOffset": 293,</br>                           "PpDivider": 1,</br>                           "PpHighVoltageInVolts": 2230,</br>                           "PulseRepetitionRateInKhz": 200,</br>                           "RaHighVoltageInVolts": 2220,</br>                           "RaLddCurrentInA": 19,</br>                           "RaOnDelayInNs": 12.5,</br>                           "RaOutputPowerSetpointInW": 3</br>                        },</br>                        {</br>                            "AttenuatorPercentage": 100,</br>                            "BurstEnvelopeControlParameter": 0,</br>                            "BurstMode": 0,</br>                            "BurstParameterN": 1,</br>                            "BurstParameterP": 1,</br>                            "CavityDumpingTimeInNs": 295.5,</br>                            "HarmonicNumber": 0,</br>                            "Notes": "User preset",</br>                            "OptimalMotorPosition": 170000,</br>                            "PhotodiodeCorrection1": 0.115993,</br>                            "PhotodiodeCorrection2": -0.00000126467,</br>                            "PhotodiodeFactor": 0.579495,</br>                            "PhotodiodeOffset": 293,</br>                            "PpDivider": 1,</br>                            "PpHighVoltageInVolts": 2230,</br>                            "PulseRepetitionRateInKhz": 200,</br>                            "RaHighVoltageInVolts": 2220,</br>                            "RaLddCurrentInA": 19,</br>                            "RaOnDelayInNs": 12.5,</br>                            "RaOutputPowerSetpointInW": 3</br>                        }</br>                    ]</br>                    "</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_CreatePresetFromActualState"><span class="parent"></span>/Advanced/CreatePresetFromActualState</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_CreatePresetFromActualState"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced_CreatePresetFromActualState" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Generate preset info from actual laser state. This will not create new preset in presets list.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Preset is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                    [</br>                        {</br>                            "PulseRepetitionRateInKhz": 100,</br>                            "CavityDumpingTimeInNs": 313.8,</br>                            "RaOnDelayInNs": 22.5,</br>                            "RaHighVoltageInVolts": 1035,</br>                            "PpHighVoltageInVolts": 2200,</br>                            "OptimalMotorPosition": 27200,</br>                            "RaLddCurrentInA": 27.988,</br>                            "RaOutputPowerSetpointInW": 9.9993422970000019,</br>                            "PhotodiodeFactor": 0.348397,</br>                            "PhotodiodeOffset": 768,</br>                            "PhotodiodeCorrection1": -0.01296,</br>                            "PhotodiodeCorrection2": 0,</br>                            "PpDivider": 1,</br>                            "HarmonicNumber": 1,</br>                            "AttenuatorPercentage": 99.99999999865075,</br>                            "Notes": "Passive preset",</br>                            "BurstParameterP": 1,</br>                            "BurstParameterN": 1,</br>                            "BurstMode": 0,</br>                            "BurstEnvelopeControlParameter": 0</br>                        }</br>                    ]</br>                    "</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_IsRemoteInterlockActive"><span class="parent"></span>/Advanced/IsRemoteInterlockActive</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_IsRemoteInterlockActive"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced_IsRemoteInterlockActive" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets whether remote interlock is currently active or not.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Remote interlock state is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"false"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_ResetRemoteInterlock"><span class="parent"></span>/Advanced/ResetRemoteInterlock</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_ResetRemoteInterlock"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced_ResetRemoteInterlock" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Resets remote interlock.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids resetting remote interlock.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_AvailableFeatures"><span class="parent"></span>/Advanced/AvailableFeatures</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_AvailableFeatures"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced_AvailableFeatures" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets available features for current PHAROS.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                    {</br>                        "Burst": "False",</br>                        "FsNsModeSwitching": "False",</br>                        "FastEnergyControl": "False"</br>                    }</br>                     "</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_ActualPulseCount"><span class="parent"></span>/Advanced/ActualPulseCount</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_ActualPulseCount"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Advanced_ActualPulseCount" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual pulse count. 0 means that pulse picker lets trough all pulses after opened.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"1"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_TargetPulseCount"><span class="parents">/Advanced/TargetPulseCount</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Advanced_TargetPulseCount"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__Advanced_TargetPulseCount"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__Advanced_TargetPulseCount" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets new target pulse count.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"1"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in not in Operational state.</li>
+<li>Invalid value received.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Invalid value""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets target pulse count.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"1"</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+                <h2>Stretcher-compressor control</h2>
+<p>
+</p>
+<div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__StretcherCompressor"><span class="parent"></span>/StretcherCompressor</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__StretcherCompressor"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__StretcherCompressor" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets all stretcher/compressor properties that have GET methods.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. GETable properties are in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                    {</br>                        "ActualPosition": 27200,</br>                        "TargetPosition": 27200</br>                    }</br>                   "</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__StretcherCompressor_ActualPosition"><span class="parent"></span>/StretcherCompressor/ActualPosition</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__StretcherCompressor_ActualPosition"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__StretcherCompressor_ActualPosition" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual stage position in steps.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"27200"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__StretcherCompressor_TargetPosition"><span class="parents">/StretcherCompressor/TargetPosition</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__StretcherCompressor_TargetPosition"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__StretcherCompressor_TargetPosition"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__StretcherCompressor_TargetPosition" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets target compressor position in steps. This triggers immediate stage movement.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets target stage position in steps.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"27200"</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+                <h2>External control</h2>
+<p>
+</p>
+<div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl"><span class="parent"></span>/ExternalControl</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__ExternalControl" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets all external control properties that have GET methods.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. GETable properties are in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                    {</br>                        "PpTriggerSource": "Internal",</br>                        "PpVoltageControlSource": "External",</br>                        "RaSyncSource": "External",</br>                        "ActualExternalRaFrequency": 200,</br>                        "TargetExternalRaFrequency": 200,</br>                        "FecControlSource": "Internal"</br>                    }</br>                   "</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_PpTriggerSource"><span class="parents">/ExternalControl/PpTriggerSource</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_PpTriggerSource"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_PpTriggerSource"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__ExternalControl_PpTriggerSource" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets new PP trigger source configuration. Available values are &quot;Internal&quot;, &quot;ExternalActiveLow&quot;, &quot;ExternalActiveHigh&quot;. Can bet set only in StandingBy state.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>New value was set.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Internal""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in not in StandingBy state.</li>
+<li>Invalid value received.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Invalid value""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets PP trigger source configuration. Available values are &quot;Internal&quot;, &quot;ExternalLow&quot;, &quot;ExternalHigh&quot;</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. PP trigger source configuration is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""Internal""</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_PpVoltageControlSource"><span class="parents">/ExternalControl/PpVoltageControlSource</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_PpVoltageControlSource"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_PpVoltageControlSource"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__ExternalControl_PpVoltageControlSource" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets new PP voltage control source configuration. Available values are &quot;Internal&quot; and &quot;External&quot;.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>New value was set.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Internal""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in not in StandingBy state.</li>
+<li>Invalid value received.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Invalid value""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets PP voltage control source configuration. Available values are &quot;Internal&quot; and &quot;External&quot;.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. PP voltage control source configuration is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""Internal""</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_RaSyncSource"><span class="parents">/ExternalControl/RaSyncSource</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_RaSyncSource"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_RaSyncSource"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__ExternalControl_RaSyncSource" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets new RA sync source configuration. Available values are &quot;Internal&quot; and &quot;External&quot;.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>New value was set.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Internal""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in not in StandingBy state.</li>
+<li>Invalid value received.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Invalid value""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets RA sync source configuration. Available values are &quot;Internal&quot; and &quot;External&quot;.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. RA sync source configuration is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""Internal""</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_ActualExternalRaFrequency"><span class="parent"></span>/ExternalControl/ActualExternalRaFrequency</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_ActualExternalRaFrequency"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__ExternalControl_ActualExternalRaFrequency" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets measured external RA sync frequency in kHz.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Measured frequency is in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"200"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_TargetExternalRaFrequency"><span class="parents">/ExternalControl/TargetExternalRaFrequency</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_TargetExternalRaFrequency"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_TargetExternalRaFrequency"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__ExternalControl_TargetExternalRaFrequency" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets new target external RA frequency in kHz. By default, laser stops if actual external RA frequency goes above or bellow this value +-10%.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>New value was set.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"150"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in not in StandingBy state.</li>
+<li>Invalid value received.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Invalid value""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets target external RA sync frequency in kHz. By default, laser stops if actual external RA frequency goes above or bellow this value +-10%.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Target frequency is in the body of this response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"200"</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_FecControlSource"><span class="parents">/ExternalControl/FecControlSource</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_FecControlSource"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__ExternalControl_FecControlSource"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__ExternalControl_FecControlSource" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets new FEC control source configuration. Available values are &quot;Internal&quot; and &quot;External&quot;.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>New value was set.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Internal""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in not in StandingBy state.</li>
+<li>Invalid value received.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""Invalid value""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets FEC control source configuration (if FEC is installed). Available values are &quot;Internal&quot; and &quot;External&quot;.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. FEC control source configuration is in the body of this response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""Internal""</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+                <h2>Burst operation (if available)</h2>
+<p>
+Defines functionality related to PHAROS burst laser. Ignore this endpoint if your laser is regular PHAROS.
+</p>
+<div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Burst"><span class="parent"></span>/Burst</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Burst"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Burst" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets all burst properties that have GET methods. All of them can be queried individually, but sometimes it is more convenient to get them all in one batch.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. GETable properties are in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                {</br>                    "ActualParameterP": 5,</br>                    "ActualParameterN": 4,</br>                    "ActualParameterMode": 0,</br>                    "ActualEnvelopeControlParameter": 0.5,</br>                    "TargetEnvelopeControlParameter": 0.5</br>                }           </br>                "</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in a state that forbids reading this parameter.</li>
+<li>Laser doesn't have this feature.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_ActualParameterP"><span class="parent"></span>/Burst/ActualParameterP</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_ActualParameterP"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Burst_ActualParameterP" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual number of pulses in picosecond pulse group.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"4"</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in a state that forbids reading this parameter.</li>
+<li>Laser doesn't have this feature.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_ActualParameterN"><span class="parent"></span>/Burst/ActualParameterN</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_ActualParameterN"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Burst_ActualParameterN" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual number of pulses in nanosecond pulse group.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"5"</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in a state that forbids reading this parameter.</li>
+<li>Laser doesn't have this feature.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_ActualParameterMode"><span class="parent"></span>/Burst/ActualParameterMode</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_ActualParameterMode"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Burst_ActualParameterMode" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets burst mode (0 or 1). More information in PHAROS User App.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"1"</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in a state that forbids reading this parameter.</li>
+<li>Laser doesn't have this feature.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_ActualEnvelopeControlParameter"><span class="parent"></span>/Burst/ActualEnvelopeControlParameter</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_ActualEnvelopeControlParameter"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Burst_ActualEnvelopeControlParameter" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual burst envelope control parameter.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"0.123"</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in a state that forbids reading this parameter.</li>
+<li>Laser doesn't have this feature.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_TargetEnvelopeControlParameter"><span class="parents">/Burst/TargetEnvelopeControlParameter</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Burst_TargetEnvelopeControlParameter"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__Burst_TargetEnvelopeControlParameter"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__Burst_TargetEnvelopeControlParameter" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Updates target burst envelope control parameter. For precise burst envelope shape control please use fast photodiode and oscilloscope.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"-0.5"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Target envelope control parameter is out of bounds. Should be between -1 and 1.</li>
+<li>Laser is in a state that forbids reading this parameter.</li>
+<li>Laser doesn't have this feature.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"999"</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets actual burst envelope control parameter.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"0.123"</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in a state that forbids reading this parameter.</li>
+<li>Laser doesn't have this feature.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+                <h2>Oscillator output operation (if available)</h2>
+<p>
+Defines functionality related to PHAROS oscillator output feature. Ignore these endpoints if your laser doesn't have it.
+</p>
+<div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__OscillatorOutput"><span class="parent"></span>/OscillatorOutput</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__OscillatorOutput"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__OscillatorOutput" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets all oscillator output properties that have GET methods. All of them can be queried individually, but sometimes it is more convenient to get them all in one batch.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. GETable properties are in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>                {</br>                    "ActualAttenuatorPercentage": 12.34,</br>                    "TargetAttenuatorPercentage": 12.34</br>                }           </br>                "</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__OscillatorOutput_ActualAttenuatorPercentage"><span class="parent"></span>/OscillatorOutput/ActualAttenuatorPercentage</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__OscillatorOutput_ActualAttenuatorPercentage"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__OscillatorOutput_ActualAttenuatorPercentage" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets actual oscillator output attenuator percentage between 0.0 and 100.0 where 0 mans that oscillator output is closed (as much as possible) and 100.0 means that oscillator output is fully open.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"12.34"</code></pre></div>
+</div>
+  
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__OscillatorOutput_TargetAttenuatorPercentage"><span class="parents">/OscillatorOutput/TargetAttenuatorPercentage</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__OscillatorOutput_TargetAttenuatorPercentage"><span class="badge badge_put">put</span></a> <a class="collapsed" data-toggle="collapse" href="#panel__OscillatorOutput_TargetAttenuatorPercentage"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    
+    <div id="panel__OscillatorOutput_TargetAttenuatorPercentage" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+            <div class="list-group-item" style="background-color: #B2E7E9;border-bottom-width: medium;border-bottom-color: #F9F9F9;">
+                <span class="badge badge_put">put</span>
+                <div class="method_description">
+                    <p><p>Sets new target attenuator value.
+After new value is accepted, attenuator motor will start moving to this position. You should wait for ActualAttenuatorPercentage to match your new target value.
+Accepts value between 0.0 and 100.0.
+Laser must be in &quot;OscOutput&quot; state before you can set this value.</p>
+</p>
+                </div>
+                  <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"0.5"</code></pre></div>
+</div>
+  
+  
+            </div>
+            <div class="list-group-item" style="background-color: #C0DFF9;">
+                <span class="badge badge_get">get</span>
+                <div class="method_description">
+                    <p><p>Gets last set target attenuator value.</p>
+</p>
+                </div>
+                <div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"12.34"</code></pre></div>
+</div>
+  
+  
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__OscillatorOutput_Enable"><span class="parent"></span>/OscillatorOutput/Enable</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__OscillatorOutput_Enable"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__OscillatorOutput_Enable" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Triggers state machine procedure which will enable &quot;OscOutput&quot; laser state.
+This command will only be accepted if laser is in &quot;StandingBy&quot; state.</p>
+<p>To disable &quot;OscOutput&quot; state, use &quot;/Basic/GoToStandby&quot; endpoint.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Laser OscOutput sequence has been initiated.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids putting it to OscOutput state.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                <h2>Custom functionality</h2>
+<p>
+Non-standard custom states and functions. 
+
+<strong>Do not use unless you are absolutely sure of what you're doing! </strong>
+</p>
+<div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Custom"><span class="parent"></span>/Custom</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Custom"><span class="badge badge_get">get</span></a></span></h3>
+    </div>
+    <div id="panel__Custom" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #C0DFF9;">
+                    <span class="badge badge_get">get</span>
+                    <div class="method_description">
+                        <p><p>Gets all available custom properties.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Custom properties are in the body of the response.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">"</br>            {</br>                "SomeIntegerProperty": 5,</br>                "SomeStringProperty": "This is demo"</br>            }</br>            "</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><ul>
+<li>Laser is in a state that forbids reading this parameter.</li>
+<li>Laser doesn't have this feature.</li>
+</ul>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><div class="panel panel-white">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel__Custom_ExecuteCommand"><span class="parent"></span>/Custom/ExecuteCommand</a> <span class="methods"><a class="collapsed" data-toggle="collapse" href="#panel__Custom_ExecuteCommand"><span class="badge badge_post">post</span></a></span></h3>
+    </div>
+    <div id="panel__Custom_ExecuteCommand" class="panel-collapse collapse">
+        <div class="panel-{{root}}">
+            <div class="list-group">
+                <div class="list-group-item" style="background-color: #CAECD2;">
+                    <span class="badge badge_post">post</span>
+                    <div class="method_description">
+                        <p><p>Executes custom command. Contact support for list of supported custom commands in your laser.</p>
+</p>
+                    </div>
+                      <h4><b>Successful operation (response code 200)</b></h4>
+<span><p>Operation successful. Response body depends on executed custom command.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"
+           {
+               "Command": "DoSomeAction1"
+           }
+           "</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  <h4><b>Unsuccessful operation (response code 403)</b></h4>
+<span><p>Laser is in a state that forbids executing requested command.</p>
+</span>
+
+<div class="row" style="text-align: center;">
+
+</br>
+    <div class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">request body example</span></br></br><code class="prettyprint" id="json">"
+           {
+               "Command": "SomeForbiddenCommand"
+           }
+           "</code></pre></div>
+    <div  class="col-md-1 vcenter" style="font-size:29px"><b>&rarr;</b></div>
+    <div  class="col-md-5 vcenter"><pre style="text-align: left;" ><span class="badge badge-secondary" style="text-transform: lowercase;width: auto;font-size: smaller;">response body example</span></br></br><code class="prettyprint" id="json">""</code></pre></div>
+</div>
+  
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+    </body>
+    </html>
+
