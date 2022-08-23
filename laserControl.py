@@ -10,8 +10,7 @@ import time
 
 
 class carbide:
-    """Control over Carbide laser
-    """
+    """Control over Carbide laser"""
 
     def __init__(self):
         self.carbideEndPoint = "http://127.0.0.1:20010"
@@ -21,8 +20,7 @@ class carbide:
         self.requestHeaders = {"Content-Type": "application/json"}
 
     def laserIdentificationNumber(self):
-        """_summary_
-        """
+        """_summary_"""
         self.laseridentificationnumber = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/LaserIdentificationNumber"
         )
@@ -32,8 +30,7 @@ class carbide:
             print("Not sure about ID")
 
     def serialNumber(self):
-        """_summary_
-        """
+        """_summary_"""
         self.serialnumber = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/SerialNumber"
         )
@@ -43,8 +40,7 @@ class carbide:
             print("Not sure about serial number")
 
     def isOutputEnabled(self):
-        """_summary_
-        """
+        """_summary_"""
         self.isoutputenabled = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/IsOutputEnabled"
         )
@@ -57,6 +53,15 @@ class carbide:
                 pass
         else:
             print("Not sure about output status")
+
+    def getLastExecutedPresetIndex(self):
+        self.lastexecutedpresetindex = requests.get(
+            f"{self.carbideEndPoint}/v1/Basic/LastExecutedPresetIndex"
+        )
+        if self.lastexecutedpresetindex.status_code == 200:
+            print(f"Last executed preset index was {self.lastexecutedpresetindex.text}")
+        else:
+            print("Error getting lest executed preset index")
 
     def selectAndApplyPreset(self, preset="1"):
         """Select preset, apply preset, and wait for the laser to become operational
@@ -128,8 +133,7 @@ class carbide:
                 print("Set output close error")
 
     def waitForLaserOperational(self):
-        """Wait for laser to reach operational state, break if in failure state
-        """
+        """Wait for laser to reach operational state, break if in failure state"""
         self.actualStateName()
         while self.actualstatename.text != '"Operational"':
             print(self.actualstatename.text)
@@ -144,15 +148,13 @@ class carbide:
             print("Laser in operational state, ready to enable output")
 
     def actualStateName(self):
-        """Get current state of laser
-        """
+        """Get current state of laser"""
         self.actualstatename = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/ActualStateName"
         )
 
     def goToStandby(self):
-        """_summary_
-        """
+        """_summary_"""
         self.gotostandby = requests.post(
             f"{self.carbideEndPoint}/v1/Basic/GoToStandby", headers=self.requestHeaders
         )
@@ -167,8 +169,7 @@ class carbide:
                 print("Laser not in standby, please check state manually")
 
     def actualValues(self):
-        """_summary_
-        """
+        """_summary_"""
         self.actualattenuatorpercentage = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/ActualAttenuatorPercentage"
         )
@@ -279,7 +280,7 @@ class carbide:
         """_summary_
 
         Args:
-            length (str, optional): pulse length to request (-ve = negative chirp, otherwise positive). 
+            length (str, optional): pulse length to request (-ve = negative chirp, otherwise positive).
             Defaults to "290".
         """
         self.settargetpulseduration = requests.put(
@@ -334,9 +335,37 @@ class carbide:
         else:
             print("Error setting divider")
 
-    def isRemoteInterlockActive(self):
+    def targetRaFrequency(self, frequency="60"):
         """_summary_
+
+        Args:
+            frequency (str, optional): RA frequency, in kHz. Defaults to "60".
         """
+        self.settargetrafrequency = requests.put(
+            f"{self.carbideEndPoint}/v1/Basic/TargetRaFrequency",
+            data=json.dumps(frequency),
+            headers=self.requestHeaders,
+        )
+        if self.settargetrafrequency.status_code == 200:
+            self.gettargetrafrequency = requests.get(
+                f"{self.carbideEndPoint}/v1/Basic/TargetRaFrequency"
+            )
+            if self.gettargetrafrequency.status_code == 200:
+                while int(self.gettargetrafrequency.text) != int(
+                    self.actualrafrequency.text
+                ):
+                    print(
+                        f"Target RA frequency is {self.gettargetrafrequency.text}, currently at {self.actualrafrequency.text}"
+                    )
+            else:
+                print("Cannot get requested RA frequency")
+        elif self.settargetrafrequency.status_code == 403:
+            print(f"Cannot set RA frequency to this value, likely out of bounds")
+        else:
+            print("Error setting RA frequency")
+
+    def isRemoteInterlockActive(self):
+        """_summary_"""
         self.isremoteinterlockactive = requests.get(
             f"{self.carbideEndPoint}/v1/Advanced/IsRemoteInterlockActive"
         )
@@ -351,8 +380,7 @@ class carbide:
             print("Cannot get remote interlock state")
 
     def resetRemoteInterlock(self):
-        """_summary_
-        """
+        """_summary_"""
         self.resetremoteinterlock = requests.post(
             f"{self.carbideEndPoint}/v1/Advanced/ResetRemoteInterlock",
             headers=self.requestHeaders,
@@ -367,8 +395,7 @@ class carbide:
             print("Error resetting remote interlock")
 
     def isPpEnabled(self):
-        """_summary_
-        """
+        """_summary_"""
         self.isppenabled = requests.get(
             f"{self.carbideEndPoint}/v1/Advanced/IsPpEnabled"
         )
@@ -388,7 +415,7 @@ class carbide:
         """Enable or disable the carbide pulse picker
 
         Args:
-            toggle (str, optional): option to toggle the pulse picker on or off. 
+            toggle (str, optional): option to toggle the pulse picker on or off.
             Defaults to "off".
         """
         if toggle == "off":
@@ -423,8 +450,7 @@ class carbide:
             print(f"Unknown request of pulse picker state: {toggle}")
 
     def getAomTriggerSource(self):
-        """_summary_
-        """
+        """_summary_"""
         self.getaomtriggersource = requests.get(
             f"{self.carbideEndPoint}/v1/ExternalControl/AomTriggerSource"
         )
@@ -446,7 +472,7 @@ class carbide:
         """_summary_
 
         Args:
-            source (str, optional): Trigger control source, can be Internal, ExternalHigh or ExternalLow. 
+            source (str, optional): Trigger control source, can be Internal, ExternalHigh or ExternalLow.
             Defaults to "Internal".
         """
         self.setaomtriggersource = requests.put(
@@ -463,8 +489,7 @@ class carbide:
             print("Error setting trigger source")
 
     def isPowerlockEnabled(self):
-        """_summary_
-        """
+        """_summary_"""
         self.ispowerlockenabled = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/IsPowerlockEnabled"
         )
@@ -515,8 +540,7 @@ class carbide:
                 print("Error disabling powerlock")
 
     def reduceLeak(self):
-        """Algo to recduce PP leakage. Use after at least 2 hours of laser running.
-        """
+        """Algo to recduce PP leakage. Use after at least 2 hours of laser running."""
         self.reduceleak = requests.post(
             f"{self.carbideEndPoint}/v1/Advanced/ReduceLeak"
         )
@@ -527,10 +551,23 @@ class carbide:
         elif self.reduceleak.status_code == 403:
             print("Unable to run leak reduction")
 
+    def getInfo(self):
+        """Gets text based status, warnings and errors"""
+        self.generalstatus = requests.get(
+            f"{self.carbideEndPoint}/v1/Basic/GeneralStatus"
+        )
+        if self.generalstatus.status_code == 200:
+            print(self.generalstatus.text)
+        self.warnings = requests.get(f"{self.carbideEndPoint}/v1/Basic/Warnings")
+        if self.warnings.status_code == 200:
+            print(self.warnings.text)
+        self.errors = requests.get(f"{self.carbideEndPoint}/v1/Basic/Errors")
+        if self.errors.status_code == 200:
+            print(self.errors.text)
+
 
 if __name__ == "__main__":
     run = carbide()
     run.isOutputEnabled()
     run.actualValues()
     run.selectAndApplyPreset("1")
-
