@@ -13,7 +13,7 @@ class carbide:
     """Control over Carbide laser"""
 
     def __init__(self):
-        self.carbideEndPoint = "http://127.0.0.1:20010"
+        self.carbideEndPoint = "http://192.168.240.10:20010"
         self.laserIdentificationNumber()
         self.serialNumber()
         self.currentaomtriggersource = 0
