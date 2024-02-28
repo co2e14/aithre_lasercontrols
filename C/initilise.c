@@ -45,7 +45,7 @@ void __cdecl main()
     }
     else
     {
-        const UINT SerialNumberOfDesiredBoard = 0; // replace 0 with the desired serial number
+        const UINT SerialNumberOfDesiredBoard = 344466;
         const UINT RTC6CountCards = rtc6_count_cards();
         UINT InternalNumberOfDesiredBoard = 0;
         for ( UINT i = 1; i <= RTC6CountCards; i++)
