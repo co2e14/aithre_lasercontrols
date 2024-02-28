@@ -3,10 +3,13 @@
 #include <conio.h>
 #include "RTC6impl.h"
 
-void __cdecl main( void*, void* )
+void terminateDLL();
+
+UINT ErrorCode;
+
+void __cdecl main()
 {
     printf( "Initilising the DLL\n\n");
-    UINT ErrorCode;
 
     ErrorCode = init_rtc6_dll();
     (void) select_rtc(1);
@@ -26,43 +29,44 @@ void terminateDLL()
     free_rtc6_dll();
 }
 
-UINT ErrorCode;
-ErrorCode = init_rtc6_dll();
-if ( ErrorCode )
-{
-    const UINT RTC6CountCards = rtc6_count_cards();
-    if ( RTC6CountCards )
+int main() {
+    ErrorCode = init_rtc6_dll();
+    if ( ErrorCode )
     {
-        UINT AccError( 0 );
-        for ( UINT i = 1; i <= RTC6CountCards; i++ )
+        UINT RTC6CountCards = rtc6_count_cards();
+        if ( RTC6CountCards )
         {
-            const UINT Error = n_get_last_error( i );
-            if ( Error != 0 )
+            UINT AccError = 0;
+            for ( UINT i = 1; i <= RTC6CountCards; i++ )
             {
-                AccError |= Error;
-                const UINT SerialNumber = n_get_serial_number ( i );
-                printf( "RTC6 Board number %d serial - %d: Error %d detected\n",
-                            i, SerialNumber, Error );
-                n_reset_error( i, Error );
+                UINT Error = n_get_last_error( i );
+                if ( Error != 0 )
+                {
+                    AccError |= Error;
+                    UINT SerialNumber = n_get_serial_number ( i );
+                    printf( "RTC6 Board number %d serial - %d: Error %d detected\n",
+                                i, SerialNumber, Error );
+                    n_reset_error( i, Error );
+                }
+            }
+            if ( AccError )
+            {
+                free_rtc6_dll();
+                return 0;
             }
         }
-        if ( AccError )
+        else
         {
+            printf( "Initilising the DLL: Error %d detected\n", ErrorCode );
             free_rtc6_dll();
-            return;
+            return 0;
         }
     }
     else
     {
-        printf( "Initilising the DLL: Error %d detected\n", ErrorCode );
-        free_rtc6_dll();
-        return;
-    }
-    else
-    {
-        const UINT SerialNumberOfDesiredBoard ();
+        const UINT SerialNumberOfDesiredBoard = 0; // replace 0 with the desired serial number
         const UINT RTC6CountCards = rtc6_count_cards();
-        UINT InternalNumberOfDesiredBoard ( 0 );
+        UINT InternalNumberOfDesiredBoard = 0;
         for ( UINT i = 1; i <= RTC6CountCards; i++)
         {
             if ( n_get_serial_number( i ) == SerialNumberOfDesiredBoard )
@@ -74,7 +78,7 @@ if ( ErrorCode )
         {
             printf( "RTC6 board with serial number %d not detected...\n", SerialNumberOfDesiredBoard);
             free_rtc6_dll();
-            return;
+            return 0;
         }
         if ( InternalNumberOfDesiredBoard != select_rtc( InternalNumberOfDesiredBoard ) )
         {
@@ -90,13 +94,13 @@ if ( ErrorCode )
             {
                 printf( "No access to RTC6 board with serial number %d\n", SerialNumberOfDesiredBoard );
                 free_rtc6_dll();
-                return;
+                return 0;
             }
             if ( ErrorCode )
             {
                 printf( "No access to RTC6 board with serial number %d\n", SerialNumberOfDesiredBoard );
                 free_rtc6_dll();
-                return;
+                return 0;
             }
             else
             {
@@ -104,4 +108,5 @@ if ( ErrorCode )
             }
         }
     }
+    return 0;
 }
