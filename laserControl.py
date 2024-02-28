@@ -49,8 +49,6 @@ class carbide:
                 print("Output is open")
             elif self.isoutputenabled.text == "false":
                 print("Output is closed")
-            else:
-                pass
         else:
             print("Not sure about output status")
 
@@ -142,8 +140,6 @@ class carbide:
             if self.actualstatename.text == '"Failure"':
                 print("Laser in failure state. Stopping...")
                 break
-            else:
-                pass
         if self.actualstatename.text == '"Operational"':
             print("Laser in operational state, ready to enable output")
 
@@ -178,64 +174,46 @@ class carbide:
                 self.actualattenuatorpercentage.text
             )
             print(f"Attenuator percentage: {self.actualattenuatorpercentage.text}%")
-        else:
-            pass
         self.actualoutputenergy = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/ActualOutputEnergy"
         )
         if self.actualoutputenergy.status_code == 200:
             print(f"Output energy: {self.actualoutputenergy.text} uJ")
-        else:
-            pass
         self.actualoutputfrequency = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/ActualOutputFrequency"
         )
         if self.actualoutputfrequency.status_code == 200:
             print(f"Output frequency: {self.actualoutputfrequency.text} kHz")
-        else:
-            pass
         self.actualoutputpower = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/ActualOutputPower"
         )
         if self.actualoutputpower.status_code == 200:
             print(f"Output power: {self.actualoutputpower.text} W")
-        else:
-            pass
         self.actualpulseduration = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/ActualPulseDuration"
         )
         if self.actualpulseduration.status_code == 200:
             print(f"Pulse duration: {self.actualpulseduration.text} fs")
-        else:
-            pass
         self.actualPpdivider = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/ActualPpDivider"
         )
         if self.actualPpdivider.status_code == 200:
             print(f"Pulse picker divider: {self.actualPpdivider.text}")
-        else:
-            pass
         self.actualshutterstate = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/ActualShutterState"
         )
         if self.actualshutterstate.status_code == 200:
             print(f"Shutter state: {self.actualshutterstate.text}")
-        else:
-            pass
         self.actualrafrequency = requests.get(
             f"{self.carbideEndPoint}/v1/Advanced/ActualRaFrequency"
         )
         if self.actualrafrequency.status_code == 200:
             print(f"RA frequency: {self.actualrafrequency.text} Hz")
-        else:
-            pass
         self.actualstateid = requests.get(
             f"{self.carbideEndPoint}/v1/Advanced/ActualStateId"
         )
         if self.actualstateid.status_code == 200:
             print(f"State ID no.: {self.actualstateid.text}")
-        else:
-            pass
         self.actualharmonic = requests.get(
             f"{self.carbideEndPoint}/v1/Basic/ActualHarmonic"
         )
@@ -253,6 +231,13 @@ class carbide:
         Args:
             percentage (str, optional): percentage to request. Defaults to "0".
         """
+        self.actualattenuatorpercentage = requests.get(
+            f"{self.carbideEndPoint}/v1/Basic/ActualAttenuatorPercentage"
+        )
+        if self.actualattenuatorpercentage.status_code == 200:
+            self.actualattenuatorpercentage_float = float(
+                self.actualattenuatorpercentage.text
+            )
         self.settargetattenuatorpercentage = requests.put(
             f"{self.carbideEndPoint}/v1/Basic/TargetAttenuatorPercentage",
             data=json.dumps(percentage),
@@ -374,8 +359,6 @@ class carbide:
                 print("Remote interlock armed")
             elif self.isremoteinterlockactive.text == "false":
                 print("Remote interlock is NOT armed")
-            else:
-                pass
         else:
             print("Cannot get remote interlock state")
 
@@ -498,11 +481,7 @@ class carbide:
                 self.powerlockstatus = "enabled"
             elif self.ispowerlockenabled.text == "false":
                 self.powerlockstatus = "disabled"
-            else:
-                pass
             print(f"Powerlock is currently {self.powerlockstatus}")
-        else:
-            pass
 
     def powerlockControl(self, state="enable"):
         """_summary_
@@ -570,5 +549,8 @@ if __name__ == "__main__":
     run = carbide()
     run.isOutputEnabled()
     run.actualValues()
-    run.selectAndApplyPreset("1")
-    
+    #run.selectAndApplyPreset("5")
+    run.actualValues()
+    run.changeOutput("enable")
+    time.sleep(5)
+    run.changeOutput()
